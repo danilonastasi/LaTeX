@@ -1,0 +1,305 @@
+
+
+
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx} % graphic parts package
+
+\usepackage{color}
+\usepackage{hyperref}
+\usepackage{lineno}
+\usepackage{natbib}
+\usepackage{listings}
+\usepackage{setspace}
+
+\linenumbers
+
+% tr <- textcolor(red)
+% \newcommand{\tr}{\textcolor{red}}
+
+\title{Stima del danno forestale a seguito della tempesta Vaia in Italia nell'area compresa tra Bolzano (BZ) e Predazzo (TN)}
+\author{Danilo Nastasi}
+\date{Febbraio 2023}
+
+\begin{document}
+
+\maketitle
+% \doublespacing in case you might prefer double spacing
+\tableofcontents
+
+% abstract
+% keywords wof
+% double line
+\newpage
+
+\begin{abstract}
+\noindent Forest damage estimation after the Vaia windstorm in Italy between Bolzano and Predazzo towns
+
+\noindent Danilo Nastasi, University of Bologna \\
+
+The aim of this study is an estimation of the forest damage caused by the windstorm Vaia the 29th of October 2018 in Italy, comparing images pre-event and post-event.
+
+\noindent The study area is 360.77 km\textsuperscript{2}. Data from Sentinel-2 satellite are the ones used in this study. They consist of images with different wavelength bands. R programming language handles with these data. A first analysis, with a Natural Colour RGB (Red Green Blue) band combination, shows the area which was destroyed by the storm but the most important band combination for vegetation studies  is the Infrared one which is as well multilayer RGB image but replacing the Red band with the NIR (Near Infrared) band.
+
+\noindent In order to indicate presence or absence of a good state of vegetation were calculated the DVI (Difference Vegetation Index) and the NDVI (Normalized Difference Vegetation Index) pre-event and post-event. After that the post-event image was subtracted from the pre-event image. The NDVI difference was more significant than the DVI difference because of a better contrast with colours recognizing the forest damage area.
+
+\noindent A classification using three colour classes was applied to the new object ‘NDVI difference’  and the final result was graphically very clear. The calculation of the number of pixels for the class which describes the forest damage made possible to specify the percent of damage and the area damaged. The estimated forest damage comes to 10.1\% which means 36.43 km\textsuperscript{2} out of 360.77 km\textsuperscript{2} study area.
+
+\end{abstract}
+
+%keyword in ordine alfabetico
+\noindent \textbf{Keywords}: R language; Vaia; landsat; sentinel-2; multispectral imaging; climate change; DVI; NDVI; infrared; forest damage; windstorm
+
+\section{Introduzione}
+    Il 29 ottobre del 2018 la tempesta, che prende il nome Vaia, si è abbattuta sull'Italia interessando prevalentemente il versante nord-est con venti che hanno raggiunto punte di oltre 200 km/h e che hanno distrutto 42525 ettari di bosco, interessando ben 494 comuni su una superficie totale di 2306968 ettari \textbf{\citep{Chirici_2019}}.
+    
+    Lo studio di \textbf{\citet{Chirici_2019}} mette in evidenza come gran parte del territorio nord-est dell'Italia sia stato danneggiato. L'area di studio è però molto vasta e di conseguenza manca di dettaglio. \`E per questo motivo che lo scopo di questo lavoro è diretto all'analisi di un'area più limitata, quindi con maggior dettaglio,  e calcolarne la superficie in cui la tempesta Vaia ha causato più danni. Una volta raccolti i dati, questi verranno elaborati e successivamente analizzati utilizzando il linguaggio di programmazione \textit{R}.
+    
+% \newpage % Create a new page
+
+\section{Area di studio}
+
+L'area di studio è compresa tra il comune di Bolzano (BZ) e il comune di Predazzo (TN), in prossimità della Val di Fiemme \textbf{(Fig. \ref{fig:areastudio}}). Le province interessate sono quindi quella di Bolzano e Trento.
+
+\begin{figure}
+\centering
+    \setlength{\fboxsep}{0pt}%
+    \setlength{\fboxrule}{1pt}%
+    \fbox{\includegraphics[width=0.95\textwidth]{00mapVaiaOSMDeAgostini.png}}
+    \caption{In basso a destra l'area di studio. Mappa realizzata utilizzando il software QGIS}
+    \label{fig:areastudio}
+\end{figure}
+
+
+
+\section{Materiali e metodi}
+
+\subsection{Materiali}
+
+Tra i materiali utilizzati vi sono: \textit{computer portatile con processore Intel Core i5, 8GB di RAM, 100GB liberi nel disco fisso, sistema operativo in uso Windows 10 Home}; sito web \textit{ESA - Copernicus Open Access Hub} da dove è possibile scaricare dati satellitari; software \textit{QGIS, ver. 3.16.11 - Hannover}, col quale è stato possibile lavorare dati raster e selezionare l'area di studio; \textit{linguaggio di programmazione R, ver. 4.1.2 (64bit)}, col quale verrà scritto il codice per interrogare le immagini e sottoporle ad analisi.
+
+\subsection{Metodi}
+
+\subsubsection{ESA - Copernicus}
+
+La prima operazione da effettuare è quella della raccolta dati. Dalla pagina web \textit{ESA - Copernicus Open Access Hub} è possibile selezionare l'area d'interesse e indicare il periodo temporale, il tipo di satellite da dove scaricare i dati e la copertura in nuvole \textbf{(Fig. \ref{fig:copernicus_area_search}}). 
+
+\begin{figure}
+\centering
+    \setlength{\fboxsep}{0pt}%
+    \setlength{\fboxrule}{1pt}%
+    \fbox{\includegraphics[width=0.9\textwidth]{copernicus_area_search01_02.png}}
+    \caption{Selezione area d'interesse e criteri di ricerca utilizzando il sito web ESA - Copernicus}
+    \label{fig:copernicus_area_search}
+\end{figure}
+
+Una volta avviata la ricerca vengono elencati i vari pacchetti dati. Sfortunatamente non tutti i pacchetti sono disponibili per il download e così, nel voler mantenere un periodo temporale più o meno simile per il confronto, soprattutto dal punto di vista vegetazionale, ho selezionato il pacchetto dati del 26 settembre 2018 e il pacchetto dati del 16 settembre 2019 \textbf{(fig. \ref{fig:copernicus_select}}). 
+
+\begin{figure}
+\centering
+    \setlength{\fboxsep}{0pt}%
+    \setlength{\fboxrule}{1pt}%
+    \fbox{\includegraphics[width=0.8\textwidth]{copernicus20180926select.png}}
+    \fbox{\includegraphics[width=0.8\textwidth]{copernicus20190916select.png}}
+    \caption{Risultato della ricerca e selezione dei pacchetti dati da scaricare}
+    \label{fig:copernicus_select}
+\end{figure}
+
+Una volta scaricati i due pacchetti ho individuato i file \textit{JPEG 2000 (jp2)} all'interno della cartella \textit{R10m}, queste immagini hanno risoluzione di 10 metri per pixel. I file che ho utilizzato per questo studio sono \textit{B2 (banda del blu), B3 (banda del verde), B4 (banda del rosso), B8 (banda del vicino infrarosso), TCI (immagine a colori naturali)}. Tutte le immagini sono georeferenziate e questo rende possibile il caricamento sul software \textit{QGIS} collocandole alla corretta posizione geografica.
+
+\subsubsection{QGIS software}
+
+I file jp2 appena scaricati ricoprono una superficie di 12056,04 km\textsuperscript{2} la quale, per uno studio di dettaglio, è troppo estesa. Utilizzando il software \textit{QGIS} ho applicato un taglio a ciascuna delle immagini salvando tutto nella cartella \textit{vaia\_crop\_ 02} che sarà la cartella di lavoro in \textit{R} eccetto i file TCI che in \textit{R} non ci serviranno. In \textbf{figura \ref{fig:qgis_step}} sono visualizzabili gli step applicati al file TCI del 2018, lo stesso processo verrà applicato a tutti gli altri file, 2018 e 2019. Per completare, la \textbf{figura \ref{fig:areacrop}}, mostra il taglio con la nuova immagine che ricopre una superficie di circa 361 km\textsuperscript{2}.
+
+\begin{figure}
+\centering
+    \setlength{\fboxsep}{0pt}%
+    \setlength{\fboxrule}{1pt}%
+    \fbox{\includegraphics[width=0.45\textwidth]{qgisareafull.png}}
+    \fbox{\includegraphics[width=0.45\textwidth]{qgisareaselect.png}} \\
+    \fbox{\includegraphics[width=0.45\textwidth]{qgisareaselectexport_02.png}}
+    \fbox{\includegraphics[width=0.45\textwidth]{qgisareaselectexport_options_temp.png}}
+    \caption{Preparazione al taglio dell'immagine originale ottenuta da Copernicus, sequenza da sinistra verso destra. Elaborazione QGIS}
+    \label{fig:qgis_step}
+\end{figure}
+
+\begin{figure}
+\centering
+    \setlength{\fboxsep}{0pt}%
+    \setlength{\fboxrule}{1pt}%
+    \fbox{\includegraphics[width=0.9\textwidth]{qgisareacrop.png}}
+    \caption{Ritaglio dell'immagine. La superficie della nuova immagine è di circa 361 km\textsuperscript{2}}
+    \label{fig:areacrop}
+\end{figure}
+
+\subsubsection{R programming language}
+
+Una volta completata la raccolta dei dati è possibile interrogare ed analizzare le immagini utilizzando il \textit{linguaggio di programmazione R}. Il codice è visualizzabile in \textbf{appendice \ref{sec:appendice}}. Per facilitarne la lettura alcune istruzioni e passaggi sono descritti in lingua inglese all'interno del codice stesso.
+
+In \textit{R}, dopo aver installato i pacchetti necessari, seleziono la cartella di lavoro dove recuperare tutte le informazioni necessarie allo studio di analisi. Per facilitare la chiamata a determinate istruzioni di codice creo una funzione universale da poter utilizzare ogni qualvolta devo svolgere le stesse operazioni modificando solo i dati in ingresso. Il prossimo passo sarà quello di creare gli oggetti su cui lavorare in \textit{R}. Il risultato finale sarà dato da due oggetti multi-livello, uno per il 2018 e uno per il 2019, in cui saranno presenti le bande che utilizzeremo in questo ordine: \textit{B8(infrarosso), B4(rosso), B3(verde), B2(blu)}.
+
+Il passo successivo è quello di creare immagini multispettrali lavorando sulle diverse bande e mettere a confronto le immagini pre-evento Vaia con le immagini post-evento Vaia. 
+
+Altre informazioni importanti da ricavare sono gli indici di vegetazione DVI e NDVI. Il DVI (Difference Vegetation Index) e l'NDVI sono indicatori che ci aiutano a capire quanto una pianta sia sana oppure no. Questi indici sono molto utilizzati nel monitoraggio degli ecosistemi:
+
+\begin{equation}
+    DVI = {REF\_nir -  REF\_red}
+    \label{eq:DVI}
+\end{equation}
+
+dove \textit{REF\_nir} e \textit{REF\_red} sono i valori di riflettanza spettrale misurati rispettivamente nelle lunghezze d'onda del vicino infrarosso e del rosso. Alti valori di riflettanza nel vicino infrarosso indicano un buono stato della vegetazione.
+
+\begin{equation}
+    NDVI = \frac{REF\_nir - REF\_red}{REF\_nir + REF\_red}
+    \label{eq:NDVI}
+\end{equation}
+
+L'indice NDVI è un indice normalizzato, esprime le stesse informazioni del DVI ma è universale per i confronti con immagini che non sono per esempio compatibili in numero di bit. Si dice normalizzato perché il suo range di valori è sempre e comunque [-1; +1], cosa che invece non avviene per il DVI. Una volta ricavati gli indici di vegetazione si può effettuare una sottrazione algebrica. Ai valori del 2018 verranno sottratti i valori del 2019. Per valori si intende i valori di ogni singolo pixel all'interno della matrice di pixel, sia per il 2018 che per il 2019:
+
+\begin{equation}
+    DVI\_diff = {DVI2018 -  DVI2019}
+    \label{eq:DVI}
+\end{equation}
+
+Stessa operazione la effettuiamo per l'indice NDVI:
+
+\begin{equation}
+    NDVI\_diff = {NDVI2018 -  NDVI2019}
+    \label{eq:NDVI}
+\end{equation}
+
+A valori bassi di questa operazione corrisponde un recupero dal punto di vista della vegetazione mentre a valori alti una perdita della vegetazione. 
+
+Utilizzando l'oggetto \textit{NDVI\_diff} applichiamo a questo una classificazione. La classificazione ci permette di avere non solo un dato qualitativo, attraverso l'immagine, ma anche un dato quantitativo attraverso il calcolo della frequenza di pixel per ogni classe. Una volta conosciuto il numero di pixel inerenti la classe che identifica la perdita di bosco sarà possibile ricavare il valore percentuale:
+
+\begin{equation}
+    forest\_dmg\_perc = \frac{num\_px\_class \times 100}{num\_px\_tot}
+    \label{eq:forest_dmg_perc}
+\end{equation}
+
+dove per \textit{num\_px\_class} si intende il numero di pixel identificati dalla classe di interesse e \textit{num\_px\_tot} è la risoluzione totale dell'immagine.
+
+A completamento del lavoro calcoliamo la superficie interessata dal danno e costruiamo una tabella con i risultati ottenuti:
+
+\begin{equation}
+    forest\_dmg\_area(km\textsuperscript{2}) = \frac{area(km\textsuperscript{2}) \times forest\_dmg\_perc}{100}
+    \label{eq:forest_area_dmg}
+\end{equation}
+
+\section{Risultati}
+In questa sezione sono visualizzabili i risultati ottenuti in uscita da \textit{R}:
+
+confronto 2018-2019 colori naturali e infrarosso \textbf{(Fig. \ref{fig:nc_cir2018_2019}})
+
+confronto 2018-2019 DVI e NDVI \textbf{(Fig. \ref{fig:dvi_ndvi2018_19}})
+
+differenza 2018-2019 DVI e NDVI \textbf{(Fig. \ref{fig:dvi_ndvi_diff2018_19}})
+
+classificazione NDVI difference e frequenza pixel delle classi \textbf{(Fig. \ref{fig:ndvi_diff_class}})
+
+tabella dei risultati \textbf{(Fig. \ref{fig:results}})
+
+\begin{figure}
+\centering
+    % \setlength{\fboxsep}{0pt}%
+    % \setlength{\fboxrule}{1pt}%
+    % \fbox{
+    \includegraphics[width=0.9\textwidth]{01ggpnc2018_2019.png}
+    % \fbox{
+    \includegraphics[width=0.9\textwidth]{02ggpcir2018_2019.png}
+    \caption{Confronto 2018-2019: in alto immagine a colori naturali; in basso immagine utilizzando l'infrarosso. Il rosso scuro indica un ottimo stato di salute della vegetazione}
+    \label{fig:nc_cir2018_2019}
+\end{figure}
+
+\begin{figure}
+\centering
+    % \setlength{\fboxsep}{0pt}%
+    % \setlength{\fboxrule}{1pt}%
+    % \fbox{
+    \includegraphics[width=0.45\textwidth]{03ggpdvi_2018.png}
+    % \fbox{
+    \includegraphics[width=0.45\textwidth]{03ggpdvi_2019.png} \\
+    % \fbox{
+    \includegraphics[width=0.45\textwidth]{04ggpndvi_2018.png}
+    % \fbox{
+    \includegraphics[width=0.45\textwidth]{04ggpndvi_2019.png}
+    \caption{Confronto 2018-2019 DVI e NDVI, i valori più alti sono indice di un buono stato della vegetazione}
+    \label{fig:dvi_ndvi2018_19}
+\end{figure}
+
+\begin{figure}
+\centering
+    \includegraphics[width=0.45\textwidth]{03ggpdvi2018_19_diff.png}
+    \includegraphics[width=0.45\textwidth]{04ggpndvi2018_19_diff.png}
+    \caption{Differenza 2018-2019 DVI e NDVI, i valori più alti sono indice di maggiore perdita della vegetazione mentre il valore zero indica nessun cambiamento tra il 2018 e il 2019}
+    \label{fig:dvi_ndvi_diff2018_19}
+\end{figure}
+
+\begin{figure}
+\centering
+    \setlength{\fboxsep}{0pt}%
+    \setlength{\fboxrule}{1pt}%
+    \fbox{\includegraphics[width=0.45\textwidth]{05ggpndvidiff_class.png}}
+    \fbox{\includegraphics[width=0.3\textwidth]{class_freq.png}}
+    \caption{Classificazione lavorando sull'NDVI 2018-19 difference. Sono state utilizzate tre classi. La classe 1 (colorazione scura) indica le aree dove è stato registrato il maggiore impatto ambientale, distruzione di parte del bosco}
+    \label{fig:ndvi_diff_class}
+\end{figure}
+
+\begin{figure}
+\centering
+    \includegraphics[width=0.8\textwidth]{table_results.png}
+    \caption{Tabella risultati}
+    \label{fig:results}
+\end{figure}
+
+\newpage
+\section{Discussione}
+Il momento più importante per una buona riuscita dello studio è senza ombra di dubbio la raccolta dei dati satellitari. Questi possono essere non privi di elementi di disturbo quali alta percentuale di umidità, nebbia, copertura dovuta alle nuvole, inoltre per fare confronti è sempre bene seguire la stagionalità facendo quindi coincidere almeno i mesi. Qualora ci fossero elementi di disturbo è bene tenerli in considerazione in fase di analisi dei dati. 
+
+La \textbf{figura \ref{fig:nc_cir2018_2019}} mostra l'area di studio di circa 361 km\textsuperscript{2}. Questa non presenta grossi elementi di disturbo. Partendo dalle immagini a colori naturali si vede chiaramente come nel settembre 2019 ci fossero diverse aree danneggiate dalla tempesta Vaia. Le immagini nell'infrarosso focalizzano l'attenzione sulla vegetazione. Tutto ciò che appare rosso è vegetazione e si va dal rosso per le praterie al rosso scuro per il bosco. Qui ancora meglio si vede il contrasto con le immagini del 2019 dove al rosso si sostituisce suolo nudo a causa della distruzione dell'area. La colorazione scura, sia nella immagine multispettrale con l'infrarosso che in quella a colori naturali, potrebbe essere confusa con il tessuto urbano (strade e città) ma anche con le aree di alta montagna se in assenza di neve. In fase di analisi bisogna tenerne conto e prestare molta attenzione.
+
+In \textbf{figura \ref{fig:dvi_ndvi2018_19}} sono stati calcolati gli indici spettrali DVI e NDVI. \`E evidente che l'indice che più esprime graficamente delle variazioni è l'NDVI. andando a calcolare la variazione nel DVI e NDVI rispetto ai due anni 2018 e 2019 \textbf{(Fig. \ref{fig:dvi_ndvi_diff2018_19}}) si vede come anche in questo caso è l'NDVI ad essere più esaustivo. Qualora ci fossero state nuvole o in una sola immagine o in entrambe ma in posizioni diverse, avremmo avuto dei picchi, positivi o negativi che se non attenzionati avrebbero rischiato di falsare l'interpretazione dei dati.
+
+Poiché l'indice NDVI è quello più esaustivo e la differenza 2018-2019 tra indici ci offre un'immagine con un buon contrasto di colori e che evidenzia, senza eccessivo margine di errore, la porzione di area che interessa al nostro studio,  viene applicata la classificazione lavorando sull'oggetto \textit{NDVI 2018-2019 difference} \textbf{(Fig. \ref{fig:ndvi_diff_class}}). In questo caso bastano soltanto tre classi per mettere in evidenza l'area danneggiata dalla tempesta Vaia ma questo avviene in condizioni quasi ideali di dati ottenuti. Qualora ci fossero nuvole, nebbia, un notevole tessuto urbano, immagini a scala ridotta e quindi minor dettaglio, potrebbero servire più classi cercando di accorpare insieme solo le classi di interesse per l'analisi ed escludere il resto.
+
+Calcolata la frequenza in pixel per ogni classe e individuata la classe o le classi di interesse è possibile con pochi calcoli matematici ricavare la superficie danneggiata. In questo caso, su una superficie totale di circa 361 km\textsuperscript{2}, il danno ha interessato una superficie di circa 36 km\textsuperscript{2} \textbf{(Fig. \ref{fig:results}}). 
+
+Con un'ulteriore classificazione applicata per esempio al DVI o NDVI pre-evento Vaia, potrebbe essere possibile calcolare la superficie totale di bosco e successivamente calcolare quanta porzione di bosco è stata persa su quel totale.
+
+Un lavoro fatto in questo modo ci permette di calcolare la superficie non dovendo andare a tracciare manualmente le aree di interesse e successivamente calcolarne in maniera geometrica l'area. Il linguaggio di programmazione \textit{R} fa tutto per noi. L'utente deve solo fare attenzione ad interrogare bene i dati e interpretarli riducendo il più possibile il margine di errore.
+
+% \newpage
+
+\begin{thebibliography}{999}
+
+% alphabetical order
+\bibitem[Chirici et al.(2019)]{Chirici_2019}
+Chirici, G., Giannetti, F., Travaglini, D., Nocentini, S., Francini, S., D'Amico, G., Calvo, E., Fasolini, D., Broll, M., Maistrelli, F., Tonner, J., Pietrogiovanna, M., Oberlechner, K., Andriolo, A., Comino, R., Faidiga, A., Pasutto, I., Carraro, G., Zen, S., Marchetti, M. (2019), Forest damage inventory after the "Vaia" storm in Italy. Forest - Rivista di Selvicoltura ed Ecologia Forestale, vol.16, pp. 3-9. \url{https://doi.org/10.3832/efor3070-016}
+
+\end{thebibliography}
+
+% \begin{thebibliography}{999}
+% Sitografia
+
+% alphabetical order
+% \bibitem[search data Sentinel]{Copernicus}
+% Search data Sentinel from ESA- Copernicus Open Acces Hub \url{https://scihub.copernicus.eu/dhus/#/home}
+
+% \bibitem[download QGIS]{qgis}
+% Download QGIS \url{https://qgis.org/en/site/forusers/download.html}
+
+% \bibitem[download R language]{Rlanguage}
+% Download R programming language for Windows  \url{https://cran.r-project.org/bin/windows/base/}
+
+% \end{thebibliography}
+
+\newpage
+
+\section{Appendice}\label{sec:appendice}
+% \begin{lstlisting}[basicstyle=\tiny][language=R]
+[basicstyle=\tiny]
+\lstinputlisting[language=R]{R_code_Vaia_exam.r}
+
+% \end{lstlisting}
+
+\end{document}
