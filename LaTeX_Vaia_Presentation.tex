@@ -1,0 +1,266 @@
+\documentclass{beamer}
+\usepackage{color}
+\usetheme{Berlin} % Frankfurt Madrid Berkeley
+\usecolortheme{spruce} % dove crane spruce
+
+\title{Stima del danno forestale a seguito della tempesta Vaia in Italia nell'area compresa tra Bolzano (BZ) e Predazzo (TN)}
+\author{Danilo Nastasi}
+
+\begin{document}
+
+\maketitle
+
+\AtBeginSection[] % Do nothing for \section*
+{	
+\begin{frame}
+\frametitle{Outline}
+\tableofcontents[currentsection,currentsubsection,currentsubsubsection]
+\end{frame}
+}
+
+
+\section{Introduzione}
+\begin{frame}
+\frametitle{Vaia vista dal satellite - 29/10/2018}
+\centering
+\includegraphics[width=0.7\textwidth]{Vaia.png} \\
+\tiny{\textit{immagine da Chirici et al., 2019 - \url{https://doi.org/10.3832/efor3070-016}}}
+\end{frame}
+
+\begin{frame}
+\frametitle{Provincia di Bolzano}
+\centering
+\includegraphics[width=0.9\textwidth]{Bolzano.png} \\
+\tiny{\textit{foto da Chirici et al., 2019 - \url{https://doi.org/10.3832/efor3070-016}}}
+\end{frame}
+
+\begin{frame}
+\frametitle{In basso l'Area di Studio}
+\centering
+\includegraphics[width=0.9\textwidth]{00mapVaiaOSMDeAgostini.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Blue, Green, Red, NIR spectral bands}
+\centering
+\includegraphics[width=0.8\textwidth]{sentinel_bands.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Vegetation reflectance}
+\centering
+\includegraphics[width=0.6\textwidth]{riflettanza.png} \\
+\includegraphics[width=0.35\textwidth]{piante_salute.png} \\
+\tiny{\textit{immagini da \url{https://www.agricolus.com/indici-vegetazione-ndvi-ndmi-istruzioni-luso/}}}
+\end{frame}
+
+\begin{frame}
+\frametitle{Interpretazione dei Valori NDVI}
+\centering
+\includegraphics[width=0.55\textwidth]{NDVI_range.png} \\
+\tiny{\textbf{valori compresi tra -1 e 0 sono tipici di aree non coltivate come corsi d’acqua e zone antropiche.} \\
+\textit{Tabella da \url{https://www.agricolus.com/indici-vegetazione-ndvi-ndmi-istruzioni-luso/}}}
+\end{frame}
+
+\begin{frame}
+%\frametitle{Band Combinations - Natural Color (nc), Color Infrared (cir)}
+\centering
+\includegraphics[width=0.6\textwidth]{Common Landsat Band Combos_50.png}
+\end{frame}
+
+\section{Materiali e Metodi}
+\begin{frame}
+\frametitle{Strumenti utilizzati}
+\centering
+\includegraphics[width=0.4\textwidth]{QGIS.png}
+\includegraphics[width=0.4\textwidth]{Copernicus_Sentinel.png} \\
+\includegraphics[width=0.3\textwidth]{Asus.png}
+\includegraphics[width=0.3\textwidth]{R_Language.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{ESA - Selezione area e periodo di interesse}
+\centering
+\includegraphics[width=0.8\textwidth]{copernicus_area_search01_02.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{ESA - Download immagini 26/09/2018}
+\centering
+\includegraphics[width=0.8\textwidth]{copernicus20180926select.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{ESA - Download immagini 16/09/2019}
+\centering
+\includegraphics[width=0.8\textwidth]{copernicus20190916select.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{QGIS - Immagine Sentinel = 12056 km\textsuperscript{2}}
+\centering
+\includegraphics[width=0.8\textwidth]{qgisareafull.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{QGIS - Selezione Area di Studio = 360.77 km\textsuperscript{2}}
+\centering
+\includegraphics[width=0.8\textwidth]{qgisareaselect.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{QGIS - Esporta nuova immagine}
+\centering
+\includegraphics[width=0.8\textwidth]{qgisareaselectexport_02.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{QGIS - Salvataggio immagine tif}
+\centering
+\includegraphics[width=0.7\textwidth]{qgisareaselectexport_options_temp.png} \\
+operazione da ripetere con tutte le bande salvando i dati in un'\textbf{unica cartella di lavoro}
+\end{frame}
+
+\begin{frame}
+\frametitle{QGIS - Nuova immagine georeferenziata}
+\centering
+\includegraphics[width=0.8\textwidth]{qgisareacrop.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Formule utilizzate}
+% \centering
+% \includegraphics[width=0.3\textwidth]{img.jpg} \\
+\begin{equation}
+ DVI = {REF\_nir -  REF\_red} 
+ \end{equation}
+ 
+ \begin{equation}
+ NDVI = \frac{REF\_nir - REF\_red}{REF\_nir + REF\_red}
+\end{equation}
+\begin{itemize}
+\item \textbf{DVI} (Difference Vegetation Index)
+\item \textbf{NDVI} (Normalized Difference Vegetation Index)
+\item \textbf{REF} (Reflectance)
+\end{itemize}
+\end{frame}
+
+% \begin{equation}
+%  DVI\_diff = {DVI2018 -  DVI2019}
+% \end{equation}
+% \end{frame}
+
+% \begin{equation}
+%  NDVI\_diff = {NDVI2018 -  NDVI2019}
+% \end{equation}
+% \end{frame}
+
+\section{R-Code e Risultati}
+\begin{frame}
+\frametitle{Librerie utilizzate}
+\centering
+\includegraphics[width=0.7\textwidth]{R_packages.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Definiamo la fuzione}
+\centering
+\includegraphics[width=0.7\textwidth]{R_Function.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Import data - Multi-layer Raster object - 8 bit}
+\centering
+\includegraphics[width=0.8\textwidth]{R_import.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Natural Color(nc) and Color Infrared(cir)}
+\centering
+\includegraphics[width=0.8\textwidth]{R_ggplot_nc_cir.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Natural Color(nc) and Color Infrared(cir) plot}
+\centering
+\includegraphics[width=0.7\textwidth]{01ggpnc2018_2019.png} \\  \includegraphics[width=0.7\textwidth]{02ggpcir2018_2019.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{DVI and NDVI}
+\centering
+\includegraphics[width=0.6\textwidth]{R_DVI.png} \\
+\includegraphics[width=0.6\textwidth]{R_NDVI.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{DVI and NDVI plot}
+\centering
+\includegraphics[width=0.4\textwidth]{03ggpdvi_2018.png}
+\includegraphics[width=0.4\textwidth]{03ggpdvi_2019.png} \\
+\includegraphics[width=0.4\textwidth]{04ggpndvi_2018.png}
+\includegraphics[width=0.4\textwidth]{04ggpndvi_2019.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{DVI and NDVI 2018-19 difference}
+\centering
+\includegraphics[width=0.7\textwidth]{R_DVI_dif.png} \\
+\includegraphics[width=0.7\textwidth]{R_NDVI_dif.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{DVI and NDVI 2018-19 difference plot}
+\centering
+\includegraphics[width=0.45\textwidth]{03ggpdvi2018_19_diff.png}
+\includegraphics[width=0.45\textwidth]{04ggpndvi2018_19_diff.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Classification NDVI 2018-19 difference}
+\centering
+\includegraphics[width=0.9\textwidth]{R_class.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Classification NDVI 2018-19 difference plot}
+\centering
+\includegraphics[width=0.6\textwidth]{05ggpndvidiff_class.png}
+\includegraphics[width=0.3\textwidth]{class_freq_02.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Elaborazione dati - Tabella}
+\centering
+\includegraphics[width=0.7\textwidth]{R_table.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Tabella dei risultati}
+\centering
+\includegraphics[width=0.6\textwidth]{table_results.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Riepilogo}
+\centering
+\includegraphics[width=0.45\textwidth]{01ggpnc2018_2019.png}
+\includegraphics[width=0.25\textwidth]{04ggpndvi_2018.png}
+\includegraphics[width=0.25\textwidth]{04ggpndvi_2019.png} \\
+\includegraphics[width=0.45\textwidth]{02ggpcir2018_2019.png}
+\includegraphics[width=0.25\textwidth]{04ggpndvi2018_19_diff.png}
+\includegraphics[width=0.25\textwidth]{05ggpndvidiff_class.png}
+\end{frame}
+
+\section{References}
+\begin{frame}
+\frametitle{References}
+\begin{itemize}
+\scriptsize{}
+\item \scriptsize{\url{https://www.rdocumentation.org/}}
+\item \scriptsize{Chirici, G., Giannetti, F., Travaglini, D., Nocentini, S., Francini, S., D'Amico, G., Calvo, E., Fasolini, D., Broll, M., Maistrelli, F., Tonner, J., Pietrogiovanna, M., Oberlechner, K., Andriolo, A., Comino, R., Faidiga, A., Pasutto, I., Carraro, G., Zen, S., Marchetti, M. (2019), Forest damage inventory after the "Vaia" storm in Italy. Forest - Rivista di Selvicoltura ed Ecologia Forestale, vol.16, pp. 3-9. \url{https://doi.org/10.3832/efor3070-016}}
+\item \scriptsize{\url{https://www.agricolus.com/indici-vegetazione-ndvi-ndmi-istruzioni-luso/}}
+\end{itemize}
+\end{frame}
+
+\end{document}
