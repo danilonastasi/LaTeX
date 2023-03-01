@@ -1,0 +1,66 @@
+\documentclass{beamer}
+\usepackage{color}
+\usetheme{Berlin} % Frankfurt Madrid Berkeley
+\usecolortheme{spruce} % dove crane spruce
+
+\title{My first presentation beamer!}
+\author{Danilo Nastasi}
+
+\begin{document}
+
+\maketitle
+
+\AtBeginSection[] % Do nothing for \section*
+{	
+\begin{frame}
+\frametitle{Outline}
+\tableofcontents[currentsection,currentsubsection,currentsubsubsection]
+\end{frame}
+}
+
+\section{Introduction}
+\begin{frame}
+\frametitle{My first slide!}
+\begin{itemize}
+\item Mars' surface is covered with \textbf{craters} that formed when comets and/or asteroids impacted the red planet.
+\item \pause These craters are especially numerous in the \textbf{southern highlands} of Mars.
+\item \pause Third sentence.
+\end{itemize}
+\end{frame}
+
+
+
+\section{Methods}
+\begin{frame}
+\frametitle{Instruments used}
+\centering
+\includegraphics[width=0.7\textwidth]{sonda.jpeg}
+\end{frame}
+
+\begin{frame}
+\frametitle{Instruments used}
+\centering
+\includegraphics[width=0.7\textwidth]{perseverance.jpeg}
+\end{frame}
+
+\section{Results}
+\begin{frame}
+\frametitle{Results}
+% \includegraphics[width=0.5\textwidth]{logo_unibo.png}
+\centering
+\includegraphics[width=0.35\textwidth]{sonda.jpeg}
+\includegraphics[width=0.35\textwidth]{sonda.jpeg} \\
+\includegraphics[width=0.35\textwidth]{sonda.jpeg}
+\includegraphics[width=0.35\textwidth]{sonda.jpeg}
+\end{frame}
+
+\begin{frame}
+\frametitle{The used formula}
+\centering
+\includegraphics[width=0.3\textwidth]{sonda.jpeg} \\
+\begin{equation}
+ e^{i \pi} + 1 = 0 
+\end{equation}
+\end{frame}
+
+\end{document}
